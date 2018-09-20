@@ -1,6 +1,7 @@
 use std::fmt;
 use std::collections::HashMap;
 
+#[allow(dead_code)]
 enum Expr {
     Val(i32),
     Var(String),
@@ -83,6 +84,8 @@ fn is_symbol(c: char) -> bool {
     c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '(' || c == ')'
 }
 
+// Tokenize input text into a vector of string slices referring to the input text
+// wrapped into an Option which is None if tokenization fails (illegal characters)
 fn tokenize<'a>(text: &'a str) -> Option<Vec<&'a str>> {
     let mut tokens = vec![];
     let mut current_token = TokenType::None;
