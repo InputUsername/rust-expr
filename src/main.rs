@@ -25,12 +25,14 @@ impl fmt::Display for Expr {
     }
 }
 
+// Combine two Options into a single Option by applying a function to their contents
 fn combine<T, F>(lhs: Option<T>, rhs: Option<T>, f: F) -> Option<T>
     where F: Fn(T, T) -> T
 {
     lhs.and_then(|a| rhs.map(|b| f(a, b)))
 }
 
+// Recursively evaluate an Expr
 fn evaluate(expr: &Expr, variables: &HashMap<String, i32>) -> Option<i32> {
     match expr {
         Expr::Val(num) => Some(*num),
@@ -69,12 +71,74 @@ fn evaluate(expr: &Expr, variables: &HashMap<String, i32>) -> Option<i32> {
     }
 }
 
-fn tokenize(text: &str) -> Vec<&str> {
-    let tokens = vec![];
+// Records the current token type while tokenizing (for multi-character tokens)
+#[derive(PartialEq)]
+enum TokenType {
+    None,
+    Number,
+    Variable,
+}
+
+fn is_symbol(c: char) -> bool {
+    c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '(' || c == ')'
+}
+
+fn tokenize<'a>(text: &'a str) -> Option<Vec<&'a str>> {
+    let mut tokens = vec![];
+    let mut current_token = TokenType::None;
+    let mut start: usize = 0;
+    let mut end: usize = 0;
+
     for (i, c) in text.char_indices() {
-        
+        if (current_token == TokenType::Number && !c.is_digit(10))
+            || (current_token == TokenType::Variable && !c.is_alphabetic())
+        {
+            println!("ending num/var parsing");
+
+            tokens.push(&text[start..end]);
+            current_token = TokenType::None;
+        }
+
+        if c == ' ' {
+            continue;
+        } else if is_symbol(c) {
+            tokens.push(&text[i..i+1]);
+        } else if c.is_digit(10) {
+            match current_token {
+                TokenType::Number => {
+                    println!("inside number {}", c);
+                    end += 1;
+                }
+                _ => {
+                    println!("found number {}", c);
+                    current_token = TokenType::Number;
+                    start = i;
+                    end = i+1;
+                }
+            }
+        } else if c.is_alphabetic() {
+            match current_token {
+                TokenType::Variable => {
+                    println!("inside variable {}", c);
+                    end += 1;
+                }
+                _ => {
+                    println!("found variable {}", c);
+                    current_token = TokenType::Variable;
+                    start = i;
+                    end = i+1;
+                }
+            }
+        } else {
+            return None;
+        }
     }
-    tokens
+
+    if current_token != TokenType::None {
+        tokens.push(&text[start..end]);
+    }
+
+    Some(tokens)
 }
 
 fn main() {
@@ -89,13 +153,26 @@ fn main() {
         )
     );
 
-    println!("{}", expr);
+    println!("expr = {}", expr);
 
     let mut variables: HashMap<String, i32> = HashMap::new();
-
+    
     variables.insert(String::from("a"), 3);
 
     let value = evaluate(&expr, &variables).unwrap();
 
-    println!("{}", value);
+    println!("expr value = {}", value);
+
+    println!("---");
+
+    // Tokenize
+
+    let text = "a+3*b";
+    let tokens = tokenize(text);
+
+    println!("text = {}", text);
+    match tokens {
+        Some(t) => println!("tokens = {:?}", t),
+        None => println!("tokenize error")
+    }
 }
