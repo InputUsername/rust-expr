@@ -65,11 +65,9 @@ pub fn tokenize(text: &str) -> Option<Vec<Token>> {
         } else if c.is_digit(10) {
             match current_type {
                 TokenType::Number => {
-                    println!("inside number {}", c);
                     end += 1;
                 }
                 _ => {
-                    println!("found number {}", c);
                     current_type = TokenType::Number;
                     start = i;
                     end = i+1;
@@ -78,11 +76,9 @@ pub fn tokenize(text: &str) -> Option<Vec<Token>> {
         } else if c.is_alphabetic() {
             match current_type {
                 TokenType::Variable => {
-                    println!("inside variable {}", c);
                     end += 1;
                 }
                 _ => {
-                    println!("found variable {}", c);
                     current_type = TokenType::Variable;
                     start = i;
                     end = i+1;
