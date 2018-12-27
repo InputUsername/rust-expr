@@ -1,3 +1,17 @@
+/// Represents tokens of an expression.
+#[derive(Debug)]
+pub enum Token {
+    Number(i32),
+    Variable(String),
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Mod,
+    OpenPar,
+    ClosePar,
+}
+
 /// Records the current token type while tokenizing (for multi-character tokens).
 #[derive(PartialEq)]
 enum TokenType {
@@ -6,14 +20,32 @@ enum TokenType {
     Variable,
 }
 
-fn is_symbol(c: char) -> bool {
-    c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '(' || c == ')'
+/// Try to parse `symbol` into a `Token`.
+fn symbol_to_token(symbol: char) -> Option<Token> {
+    match symbol {
+        '+' => Some(Token::Add),
+        '-' => Some(Token::Sub),
+        '*' => Some(Token::Mul),
+        '/' => Some(Token::Div),
+        '%' => Some(Token::Mod),
+        '(' => Some(Token::OpenPar),
+        ')' => Some(Token::ClosePar),
+        _ => None,
+    }
 }
 
-/// Tokenize input text into a vector of string slices referring to the input text
-/// wrapped into an Option which is None if tokenization fails (illegal characters).
-pub fn tokenize<'a>(text: &'a str) -> Option<Vec<&'a str>> {
-    let mut tokens = vec![];
+/// Parse `string` as a `Token` of type `token_type`.
+fn string_to_token(string: &str, token_type: TokenType) -> Option<Token> {
+    match token_type {
+        TokenType::Number => string.parse().map(|n| Token::Number(n)).ok(),
+        TokenType::Variable => Some(Token::Variable(String::from(string))),
+        _ => None,
+    }
+}
+
+/// Tokenize input text into a vector of tokens.
+pub fn tokenize(text: &str) -> Option<Vec<Token>> {
+    let mut tokens = Vec::new();
     let mut current_type = TokenType::None;
     let mut start: usize = 0;
     let mut end: usize = 0;
@@ -22,16 +54,14 @@ pub fn tokenize<'a>(text: &'a str) -> Option<Vec<&'a str>> {
         if (current_type == TokenType::Number && !c.is_digit(10))
             || (current_type == TokenType::Variable && !c.is_alphabetic())
         {
-            println!("ending num/var parsing");
-
-            tokens.push(&text[start..end]);
+            // Unwrap is fine because current_type is not TokenType::None
+            let new_token = string_to_token(&text[start..end], current_type).unwrap();
+            tokens.push(new_token);
             current_type = TokenType::None;
         }
 
         if c == ' ' {
             continue;
-        } else if is_symbol(c) {
-            tokens.push(&text[i..i+1]);
         } else if c.is_digit(10) {
             match current_type {
                 TokenType::Number => {
@@ -58,13 +88,18 @@ pub fn tokenize<'a>(text: &'a str) -> Option<Vec<&'a str>> {
                     end = i+1;
                 }
             }
+        } else if let Some(symbol) = symbol_to_token(c) {
+            tokens.push(symbol);
         } else {
             return None;
         }
     }
 
+    // Add potential final token
     if current_type != TokenType::None {
-        tokens.push(&text[start..end]);
+        // Unwrap is fine because current_type is not TokenType::None
+        let new_token = string_to_token(&text[start..end], current_type).unwrap();
+        tokens.push(new_token);
     }
 
     Some(tokens)
