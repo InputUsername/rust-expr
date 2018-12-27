@@ -11,11 +11,11 @@ use tokenize::tokenize;
 fn main() {
     // 1 + (2 * a)
     let expr = Expr::Add(
-        Box::new(Expr::Val(1)),
+        Box::new(Expr::Number(1)),
         Box::new(
             Expr::Mul(
-                Box::new(Expr::Val(2)),
-                Box::new(Expr::Var(String::from("a")))
+                Box::new(Expr::Number(2)),
+                Box::new(Expr::Variable(String::from("a")))
             )
         )
     );
@@ -38,7 +38,7 @@ fn main() {
     let tokens = tokenize(text);
 
     println!("text = {}", text);
-    
+
     match tokens {
         Ok(tokens) => {
             println!("tokens = {:?}", tokens);

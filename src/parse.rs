@@ -1,8 +1,8 @@
 use std::fmt;
 
 pub enum Expr {
-    Val(i32),
-    Var(String),
+    Number(i32),
+    Variable(String),
     Add(Box<Expr>, Box<Expr>),
     Sub(Box<Expr>, Box<Expr>),
     Mul(Box<Expr>, Box<Expr>),
@@ -13,8 +13,8 @@ pub enum Expr {
 impl fmt::Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Expr::Val(num) => write!(f, "{}", num),
-            Expr::Var(name) => write!(f, "{}", name),
+            Expr::Number(num) => write!(f, "{}", num),
+            Expr::Variable(name) => write!(f, "{}", name),
             Expr::Add(lhs, rhs) => write!(f, "({} + {})", lhs, rhs),
             Expr::Sub(lhs, rhs) => write!(f, "({} - {})", lhs, rhs),
             Expr::Mul(lhs, rhs) => write!(f, "({} * {})", lhs, rhs),

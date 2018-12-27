@@ -12,8 +12,8 @@ fn combine<T, F>(lhs: Option<T>, rhs: Option<T>, f: F) -> Option<T>
 /// Recursively evaluate an Expr.
 pub fn evaluate(expr: &Expr, variables: &HashMap<String, i32>) -> Option<i32> {
     match expr {
-        Expr::Val(num) => Some(*num),
-        Expr::Var(name) => {
+        Expr::Number(num) => Some(*num),
+        Expr::Variable(name) => {
             if let Some(val) = variables.get(name) {
                 Some(*val)
             } else {
