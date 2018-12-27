@@ -4,7 +4,7 @@ mod tokenize;
 
 use std::collections::HashMap;
 
-use parse::Expr;
+use parse::{Expr, parse};
 use eval::evaluate;
 use tokenize::tokenize;
 
@@ -42,6 +42,15 @@ fn main() {
     match tokens {
         Ok(tokens) => {
             println!("tokens = {:?}", tokens);
+
+            // Parse
+
+            let expr = parse(&tokens);
+
+            match expr {
+                Ok(expr) => println!("expr = {}", expr),
+                Err(err) => println!("parse error: {}", err),
+            }
         },
         Err(err) => println!("tokenize error: {}", err),
     }
