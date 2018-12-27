@@ -38,8 +38,11 @@ fn main() {
     let tokens = tokenize(text);
 
     println!("text = {}", text);
+    
     match tokens {
-        Some(t) => println!("tokens = {:?}", t),
-        None => println!("tokenize error")
+        Ok(tokens) => {
+            println!("tokens = {:?}", tokens);
+        },
+        Err(err) => println!("tokenize error: {}", err),
     }
 }

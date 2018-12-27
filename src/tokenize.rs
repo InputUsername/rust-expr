@@ -44,7 +44,7 @@ fn string_to_token(string: &str, token_type: TokenType) -> Option<Token> {
 }
 
 /// Tokenize input text into a vector of tokens.
-pub fn tokenize(text: &str) -> Option<Vec<Token>> {
+pub fn tokenize(text: &str) -> Result<Vec<Token>, String> {
     let mut tokens = Vec::new();
     let mut current_type = TokenType::None;
     let mut start: usize = 0;
@@ -87,7 +87,7 @@ pub fn tokenize(text: &str) -> Option<Vec<Token>> {
         } else if let Some(symbol) = symbol_to_token(c) {
             tokens.push(symbol);
         } else {
-            return None;
+            return Err(format!("Unknown character '{}'", c));
         }
     }
 
@@ -98,5 +98,5 @@ pub fn tokenize(text: &str) -> Option<Vec<Token>> {
         tokens.push(new_token);
     }
 
-    Some(tokens)
+    Ok(tokens)
 }
