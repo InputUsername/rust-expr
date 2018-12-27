@@ -14,18 +14,18 @@ fn is_symbol(c: char) -> bool {
 /// wrapped into an Option which is None if tokenization fails (illegal characters).
 pub fn tokenize<'a>(text: &'a str) -> Option<Vec<&'a str>> {
     let mut tokens = vec![];
-    let mut current_token = TokenType::None;
+    let mut current_type = TokenType::None;
     let mut start: usize = 0;
     let mut end: usize = 0;
 
     for (i, c) in text.char_indices() {
-        if (current_token == TokenType::Number && !c.is_digit(10))
-            || (current_token == TokenType::Variable && !c.is_alphabetic())
+        if (current_type == TokenType::Number && !c.is_digit(10))
+            || (current_type == TokenType::Variable && !c.is_alphabetic())
         {
             println!("ending num/var parsing");
 
             tokens.push(&text[start..end]);
-            current_token = TokenType::None;
+            current_type = TokenType::None;
         }
 
         if c == ' ' {
@@ -33,27 +33,27 @@ pub fn tokenize<'a>(text: &'a str) -> Option<Vec<&'a str>> {
         } else if is_symbol(c) {
             tokens.push(&text[i..i+1]);
         } else if c.is_digit(10) {
-            match current_token {
+            match current_type {
                 TokenType::Number => {
                     println!("inside number {}", c);
                     end += 1;
                 }
                 _ => {
                     println!("found number {}", c);
-                    current_token = TokenType::Number;
+                    current_type = TokenType::Number;
                     start = i;
                     end = i+1;
                 }
             }
         } else if c.is_alphabetic() {
-            match current_token {
+            match current_type {
                 TokenType::Variable => {
                     println!("inside variable {}", c);
                     end += 1;
                 }
                 _ => {
                     println!("found variable {}", c);
-                    current_token = TokenType::Variable;
+                    current_type = TokenType::Variable;
                     start = i;
                     end = i+1;
                 }
@@ -63,7 +63,7 @@ pub fn tokenize<'a>(text: &'a str) -> Option<Vec<&'a str>> {
         }
     }
 
-    if current_token != TokenType::None {
+    if current_type != TokenType::None {
         tokens.push(&text[start..end]);
     }
 
